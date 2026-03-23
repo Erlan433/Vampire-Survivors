@@ -115,6 +115,18 @@ var GameUI = (function() {
         };
     }
 
+
+    function initCanvas() {
+    console.log('[UI] initCanvas вызван');
+    if (typeof GameCanvas !== 'undefined' && GameCanvas.init) {
+        GameCanvas.init();
+        GameCanvas.startRenderLoop();
+        console.log('[UI] Canvas инициализирован');
+    } else {
+        console.error('[UI] GameCanvas не найден');
+    }
+}
+
     function createPlayer() {
         if (!elements.gameContainer) {
             console.error('gameContainer не найден при создании игрока');
@@ -223,12 +235,20 @@ var GameUI = (function() {
     }
 
     function showGameUI() {
-        if (elements.gameContainer) elements.gameContainer.style.display = 'block';
-        if (elements.ammoIndicator) elements.ammoIndicator.style.display = 'block';
-        if (elements.waveIndicator) elements.waveIndicator.style.display = 'block';
-        if (elements.killCounter) elements.killCounter.style.display = 'block';
-        if (elements.playerHpWrap) elements.playerHpWrap.style.display = 'flex';
-    }
+
+    console.log('[UI] showGameUI вызван');
+    
+    if (elements.gameContainer) elements.gameContainer.style.display = 'block';
+    if (elements.ammoIndicator) elements.ammoIndicator.style.display = 'block';
+    if (elements.waveIndicator) elements.waveIndicator.style.display = 'block';
+    if (elements.killCounter) elements.killCounter.style.display = 'block';
+    if (elements.playerHpWrap) elements.playerHpWrap.style.display = 'flex';
+    if (elements.soundToggle) elements.soundToggle.style.display = 'block';
+    
+    initCanvas();
+}
+
+
 
     function hideAllMenus() {
         if (elements.menu) elements.menu.style.display = 'none';

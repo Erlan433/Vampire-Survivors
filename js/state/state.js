@@ -9,13 +9,12 @@ var GameState = (function() {
     let isPaused = false;
     
     // Игрок
-    let player = {
-        x: 0,
-        y: 0,
-        health: 100,
-        element: null,
-        gun: null
-    };
+   let player = {
+    x: 0,
+    y: 0,
+    health: 100,
+    gunAngle: 0  // ДОБАВИТЬ: угол поворота оружия
+};
     
     // Игровые объекты
     let bullets = [];

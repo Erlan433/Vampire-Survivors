@@ -14,7 +14,7 @@ var GameConfig = (function() {
     // Роли врагов
     var ROLES = ['chaser', 'chaser', 'chaser', 'chaser',
                    'interceptor', 'interceptor', 'interceptor',
-                   'flanker', 'flanker', 'elite', 'brute', 'rusher', 'orbiter'];
+                   'flanker', 'flanker', 'elite', 'brute', 'rusher', 'orbiter '];
 
     // Параметры игры
     var GAME_PARAMS = {

@@ -210,6 +210,13 @@ var GameAI = (function() {
                         GameWaves.onEnemyDefeated();
                         GameUI.updateKills();
                         
+                        // Спавн сферы опыта при смерти врага
+                        var expValue = 10 + Math.floor(GameState.waveNumber() * 2);
+                        if (typeof GameParticles !== 'undefined' && GameParticles.createExpOrb) {
+                        GameParticles.createExpOrb(e.posX, e.posY, expValue);
+                        }
+                        
+                        
                         if (typeof GameSound !== 'undefined' && GameSound.play) {
                             GameSound.play('enemyDeath');
                         }
@@ -225,6 +232,8 @@ var GameAI = (function() {
                 }
             }
         }
+
+
         return false;
     }
     

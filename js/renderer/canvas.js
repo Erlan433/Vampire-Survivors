@@ -140,10 +140,10 @@ var GameCanvas = (function () {
         ctx.save();
         
         // Перемещаемся в центр игрока
-        ctx.translate(player.x + 10, player.y + 10);
+        ctx.translate(player.x + 30, player.y + 30);
         
         // Отрисовываем игрока
-        ctx.drawImage(images.player, -10, -10, 20, 20);
+        ctx.drawImage(images.player, -30, -30, 40, 40);
         
         // Получаем угол поворота оружия из состояния
         var angle = player.gunAngle || 0;
@@ -152,16 +152,16 @@ var GameCanvas = (function () {
         ctx.rotate(angle);
         
         // Отрисовываем оружие
-        ctx.drawImage(images.playerGun, 5, -5, 10, 10);
+        ctx.drawImage(images.playerGun, 10, -10, 15, 15);
         
         ctx.restore();
         
         // Отрисовываем полоску здоровья над игроком
         var healthPercent = player.health / 100;
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        ctx.fillRect(player.x, player.y - 8, 20, 4);
+        ctx.fillRect(player.x, player.y - 8, 30, 4);
         ctx.fillStyle = healthPercent > 0.6 ? '#2ecc40' : (healthPercent > 0.3 ? '#ffdc00' : '#ff4136');
-        ctx.fillRect(player.x, player.y - 8, 20 * healthPercent, 4);
+        ctx.fillRect(player.x, player.y - 8, 30 * healthPercent, 4);
     }
     
     function renderEnemies() {
@@ -177,7 +177,7 @@ var GameCanvas = (function () {
             var img = imagesMap[e.role] || images.enemies.chaser;
             
             if (img) {
-                ctx.drawImage(img, e.posX, e.posY, 20, 20);
+                ctx.drawImage(img, e.posX, e.posY, 40, 40);
             } else {
                 // Fallback: рисуем квадрат если изображение не загружено
                 ctx.fillStyle = 'darkred';
@@ -187,9 +187,9 @@ var GameCanvas = (function () {
             // Отрисовываем полоску здоровья
             var healthPercent = e.health / e.maxHealth;
             ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-            ctx.fillRect(e.posX, e.posY - 5, 20, 3);
+            ctx.fillRect(e.posX, e.posY -5, 30, 3);
             ctx.fillStyle = '#ff4136';
-            ctx.fillRect(e.posX, e.posY - 5, 20 * healthPercent, 3);
+            ctx.fillRect(e.posX, e.posY - 5, 30 * healthPercent, 3);
         }
     }
 

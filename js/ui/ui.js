@@ -1,348 +1,273 @@
 // ============================================================
-// ui.js - Управление интерфейсом и отрисовка через Canvas
+// ui.js - Управление интерфейсом
 // ============================================================
 
-const GameUI = (() => {
-    const ids = {
-        menu: 'menu',
-        difficultyScreen: 'difficulty-screen',
-        pauseMenu: 'pause-menu',
-        gameContainer: 'game-container',
-
-        startButton: 'start-button',
-        difficultyButton: 'difficulty-button',
-        exitButton: 'exit-button',
-
-        diffEasy: 'diff-easy',
-        diffNormal: 'diff-normal',
-        diffHard: 'diff-hard',
-        diffBack: 'diff-back',
-
-        resumeButton: 'resume-button',
-        pauseExitButton: 'pause-exit-button',
-
-        ammoIndicator: 'ammo-indicator',
-        waveIndicator: 'wave-indicator',
-        killCounter: 'kill-counter',
-        waveAnnounce: 'wave-announce',
-
-        gameOverMessage: 'game-over-message',
-        gameOverText: 'game-over-text',
-        restartButton: 'restart-button',
-
-        playerHpWrap: 'player-healthbar-wrap',
-        playerHpFill: 'player-healthbar-fill',
-        playerHpValue: 'player-hp-value',
-
-        soundToggle: 'sound-toggle'
-    };
-
-    const requiredElements = [
-        'menu', 'startButton', 'difficultyButton', 'exitButton', 'gameContainer'
-    ];
-
-    const elements = {};
-    let waveAnnounceTimer = null;
-    let canvasContext = null;
-    let canvasElement = null;
-    let renderLoopId = null;
-
-    const displayMap = {
-        menu: 'flex',
-        difficultyScreen: 'flex',
-        pauseMenu: 'flex',
-        gameContainer: 'block',
-        ammoIndicator: 'block',
-        waveIndicator: 'block',
-        killCounter: 'block',
-        waveAnnounce: 'block',
-        gameOverMessage: 'flex',
-        playerHpWrap: 'flex',
-        soundToggle: 'block'
-    };
+var GameUI = (function() {
+    // DOM элементы
+    var elements = {};
 
     function init() {
-        console.log('[UI] init');
-
-        if (typeof document === 'undefined') {
-            console.error('[UI] document не доступен');
-            return false;
+        console.log('GameUI.init() начат');
+        
+        // Проверяем, что document существует
+        if (!document) {
+            console.error('document не доступен!');
+            return;
         }
 
-        cacheElements();
+        // Получаем элементы с проверкой
+        elements.menu = document.getElementById('menu');
+        elements.difficultyScreen = document.getElementById('difficulty-screen');
+        elements.pauseMenu = document.getElementById('pause-menu');
+        elements.gameContainer = document.getElementById('game-container');
+        
+        elements.startButton = document.getElementById('start-button');
+        elements.difficultyButton = document.getElementById('difficulty-button');
+        elements.exitButton = document.getElementById('exit-button');
+        
+        elements.diffEasy = document.getElementById('diff-easy');
+        elements.diffNormal = document.getElementById('diff-normal');
+        elements.diffHard = document.getElementById('diff-hard');
+        elements.diffBack = document.getElementById('diff-back');
+        
+        elements.resumeButton = document.getElementById('resume-button');
+        elements.pauseExitButton = document.getElementById('pause-exit-button');
+        
+        elements.ammoIndicator = document.getElementById('ammo-indicator');
+        elements.waveIndicator = document.getElementById('wave-indicator');
+        elements.killCounter = document.getElementById('kill-counter');
+        elements.waveAnnounce = document.getElementById('wave-announce');
+        elements.gameOverMessage = document.getElementById('game-over-message');
+        elements.restartButton = document.getElementById('restart-button');
+        
+        elements.playerHpWrap = document.getElementById('player-healthbar-wrap');
+        elements.playerHpFill = document.getElementById('player-healthbar-fill');
+        elements.playerHpValue = document.getElementById('player-hp-value');
+        
+        elements.soundButton = document.getElementById('sound-button');
+        elements.soundToggle = document.getElementById('sound-toggle');
 
-        if (!validateElements()) {
-            return false;
+        // Проверяем каждый критический элемент
+        var missingElements = [];
+        if (!elements.menu) missingElements.push('menu');
+        if (!elements.startButton) missingElements.push('start-button');
+        if (!elements.difficultyButton) missingElements.push('difficulty-button');
+        if (!elements.exitButton) missingElements.push('exit-button');
+        if (!elements.gameContainer) missingElements.push('game-container');
+
+        if (missingElements.length > 0) {
+            console.error('Не найдены элементы DOM:', missingElements.join(', '));
+            return;
         }
 
-        bindEvents();
-        console.log('[UI] init завершён');
-        return true;
+        console.log('Все элементы DOM найдены, настраиваем слушатели...');
+        setupMenuListeners();
+        setupDifficultyListeners();
+        setupPauseListeners();
+        setupSoundListener();
+        console.log('GameUI.init() завершен успешно');
     }
 
-    function cacheElements() {
-        Object.keys(ids).forEach(key => {
-            elements[key] = document.getElementById(ids[key]);
-        });
-    }
-
-    function validateElements() {
-        const missing = requiredElements.filter(key => !elements[key]);
-
-        if (missing.length > 0) {
-            console.error(
-                '[UI] Не найдены элементы:',
-                missing.map(key => ids[key]).join(', ')
-            );
-            console.log('[UI] document.readyState:', document.readyState);
-            return false;
+    function setupMenuListeners() {
+        if (elements.startButton) {
+            elements.startButton.onclick = function() {
+                elements.menu.style.display = 'none';
+                if (typeof GameCore !== 'undefined' && GameCore.startGame) {
+                    GameCore.startGame();
+                } else {
+                    console.error('GameCore.startGame не найден');
+                }
+            };
         }
-
-        return true;
+        
+        if (elements.difficultyButton) {
+            elements.difficultyButton.onclick = function() {
+                elements.menu.style.display = 'none';
+                elements.difficultyScreen.style.display = 'flex';
+            };
+        }
+        
+        if (elements.exitButton) {
+            elements.exitButton.onclick = function() { 
+                location.reload(); 
+            };
+        }
     }
 
-    function bindEvents() {
-        bindMenuEvents();
-        bindDifficultyEvents();
-        bindPauseEvents();
-    }
-
-    function bindMenuEvents() {
-        on('startButton', 'click', () => {
-            hide('menu');
-            GameCore.startGame();
-            showGameUI();
-            initCanvas();
-            startRenderLoop();
-            createPlayer();
-            updateAmmo();
-            updateWave();
-            updateKills();
-            updateHealth();
-            show('playerHpWrap');
-            show('soundToggle');
-        });
-
-        on('difficultyButton', 'click', () => {
-            hide('menu');
-            show('difficultyScreen');
-        });
-
-        on('exitButton', 'click', reloadPage);
-    }
-
-    function bindDifficultyEvents() {
-        on('diffEasy',   'click', () => setDifficultyUI('easy'));
-        on('diffNormal', 'click', () => setDifficultyUI('normal'));
-        on('diffHard',   'click', () => setDifficultyUI('hard'));
-
-        on('diffBack',   'click', () => {
-            hide('difficultyScreen');
-            show('menu');
-        });
-    }
-
-    function bindPauseEvents() {
-        on('resumeButton',   'click', GameCore.resumeGame);
-        on('pauseExitButton', 'click', reloadPage);
-        on('restartButton',  'click', reloadPage);
+    function setupDifficultyListeners() {
+        if (elements.diffEasy) {
+            elements.diffEasy.onclick = function() { 
+                setDifficultyUI('easy'); 
+            };
+        }
+        if (elements.diffNormal) {
+            elements.diffNormal.onclick = function() { 
+                setDifficultyUI('normal'); 
+            };
+        }
+        if (elements.diffHard) {
+            elements.diffHard.onclick = function() { 
+                setDifficultyUI('hard'); 
+            };
+        }
+        if (elements.diffBack) {
+            elements.diffBack.onclick = function() {
+                elements.difficultyScreen.style.display = 'none';
+                elements.menu.style.display = 'flex';
+            };
+        }
     }
 
     function setDifficultyUI(level) {
-      const labels = { easy: 'Легко', normal: 'Нормально', hard: 'Сложно' };
-      GameConfig.setDifficulty(level);
-      setText('difficultyButton', `Сложность: ${labels[level]}`);
-      hide('difficultyScreen');
-      show('menu');
+        if (typeof GameConfig !== 'undefined' && GameConfig.setDifficulty) {
+            GameConfig.setDifficulty(level);
+        }
+        var labels = { easy: 'Легко', normal: 'Нормально', hard: 'Сложно' };
+        if (elements.difficultyButton) {
+            elements.difficultyButton.textContent = 'Сложность: ' + labels[level];
+        }
+        elements.difficultyScreen.style.display = 'none';
+        elements.menu.style.display = 'flex';
     }
 
+    function setupPauseListeners() {
+        if (elements.resumeButton) {
+            elements.resumeButton.onclick = function() {
+                if (typeof GameCore !== 'undefined' && GameCore.resumeGame) {
+                    GameCore.resumeGame();
+                }
+            };
+        }
+        if (elements.pauseExitButton) {
+            elements.pauseExitButton.onclick = function() { 
+                location.reload(); 
+            };
+        }
+        if (elements.restartButton) {
+            elements.restartButton.onclick = function() { 
+                location.reload(); 
+            };
+        }
+    }
+
+    function setupSoundListener() {
+        if (elements.soundButton) {
+            elements.soundButton.onclick = function() {
+                if (typeof GameConfig !== 'undefined' && GameConfig.SOUND_CONFIG) {
+                    GameConfig.SOUND_CONFIG.enabled = !GameConfig.SOUND_CONFIG.enabled;
+                    elements.soundButton.textContent = GameConfig.SOUND_CONFIG.enabled ? '🔊' : '🔇';
+                }
+            };
+        }
+    }
+
+    // Функция инициализации canvas (заменяет createPlayer)
     function initCanvas() {
-      console.log('[UI] initCanvas');
-      canvasElement = document.createElement('canvas');
-      canvasElement.id = 'game-canvas';
-      canvasElement.style.position = 'absolute';
-      canvasElement.style.top = 0;
-      canvasElement.style.left = 0;
-      canvasElement.style.zIndex = 1;
-      elements.gameContainer.appendChild(canvasElement);
-      canvasContext = canvasElement.getContext('2d');
-      resizeCanvas();
-      window.addEventListener('resize', resizeCanvas);
+        console.log('Инициализация canvas...');
+        if (typeof GameCanvas !== 'undefined' && GameCanvas.init) {
+            GameCanvas.init();
+            GameCanvas.startRenderLoop();
+            console.log('Canvas инициализирован');
+        } else {
+            console.error('GameCanvas не найден');
+        }
     }
 
-    function resizeCanvas() {
-      if (!canvasElement) return;
-      canvasElement.width = elements.gameContainer.clientWidth;
-      canvasElement.height = elements.gameContainer.clientHeight;
+    // Функции обновления HUD
+    function updateAmmo() {
+        if (elements.ammoIndicator && typeof GameState !== 'undefined') {
+            elements.ammoIndicator.textContent = 'Патроны: ' + (GameState.ammoCount ? GameState.ammoCount() : 999) + '/999';
+        }
     }
 
-    function startRenderLoop() {
-      renderLoopId = requestAnimationFrame(renderLoop);
+    function updateWave() {
+        if (elements.waveIndicator && typeof GameState !== 'undefined') {
+            elements.waveIndicator.textContent = 'Волна: ' + (GameState.waveNumber ? GameState.waveNumber() : 1);
+        }
     }
 
-    function stopRenderLoop() {
-      cancelAnimationFrame(renderLoopId);
+    function updateKills() {
+        if (elements.killCounter && typeof GameState !== 'undefined') {
+            elements.killCounter.textContent = 'Убито: ' + (GameState.totalKills ? GameState.totalKills() : 0);
+        }
     }
 
-    function renderLoop() {
-      clearCanvas();
-      drawPlayer();
-      drawEnemies();
-      drawBullets();
-      renderLoopId = requestAnimationFrame(renderLoop);
+    function updateHealth() {
+        if (!elements.playerHpFill || !elements.playerHpValue) return;
+        if (typeof GameState === 'undefined' || !GameState.player) return;
+        
+        var pct = Math.max(0, GameState.player().health);
+        elements.playerHpFill.style.width = pct + '%';
+        elements.playerHpValue.textContent = Math.ceil(pct);
+        
+        if (pct > 60) elements.playerHpFill.style.backgroundColor = '#2ecc40';
+        else if (pct > 30) elements.playerHpFill.style.backgroundColor = '#ffdc00';
+        else elements.playerHpFill.style.backgroundColor = '#ff4136';
     }
 
-    function clearCanvas() {
-      if (canvasContext) {
-          canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
-      }
+    function showWaveAnnounce(text) {
+        if (!elements.waveAnnounce) return;
+        
+        elements.waveAnnounce.textContent = text;
+        elements.waveAnnounce.style.display = 'block';
+        
+        setTimeout(function() {
+            if (elements.waveAnnounce) {
+                elements.waveAnnounce.style.display = 'none';
+            }
+        }, 2500);
     }
 
-    // --- Отрисовка объектов на Canvas ---
-
-    function drawPlayer() {
-      const player = GameState.player();
-      if (!player || !canvasContext) return;
-
-      // Игрок (прямоугольник)
-      canvasContext.fillStyle = '#3498db';
-      canvasContext.fillRect(player.x, player.y, player.width, player.height);
-      
-      // Полоска здоровья игрока (над игроком)
-      const hp = Math.max(0, Math.min(100, player.health));
-      canvasContext.fillStyle = '#2ecc40';
-      canvasContext.fillRect(player.x, player.y - 10, (player.width * hp) / 100, 5);
+    function showGameOver() {
+        var gameOverText = document.getElementById('game-over-text');
+        if (gameOverText && typeof GameState !== 'undefined') {
+            gameOverText.textContent = 'Игра закончена!\nВолна: ' + (GameState.waveNumber ? GameState.waveNumber() : 1) + 
+                '\nУбито врагов: ' + (GameState.totalKills ? GameState.totalKills() : 0);
+        }
+        if (elements.gameOverMessage) {
+            elements.gameOverMessage.style.display = 'flex';
+        }
+        if (elements.soundToggle) {
+            elements.soundToggle.style.display = 'none';
+        }
     }
 
-    function drawEnemies() {
-      const enemies = GameState.enemies();
-      if (!enemies || !canvasContext) return;
-      
-      enemies.forEach(enemy => {
-          // Враг (прямоугольник)
-          canvasContext.fillStyle = '#e74c3c';
-          canvasContext.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-          
-          // Полоска здоровья врага (над врагом)
-          const hp = Math.max(0, Math.min(100, enemy.health));
-          canvasContext.fillStyle = '#ff4136';
-          canvasContext.fillRect(enemy.x, enemy.y - 10, (enemy.width * hp) / 100, 5);
-       });
+    function showGameUI() {
+        if (elements.gameContainer) elements.gameContainer.style.display = 'block';
+        if (elements.ammoIndicator) elements.ammoIndicator.style.display = 'block';
+        if (elements.waveIndicator) elements.waveIndicator.style.display = 'block';
+        if (elements.killCounter) elements.killCounter.style.display = 'block';
+        if (elements.playerHpWrap) elements.playerHpWrap.style.display = 'flex';
+        if (elements.soundToggle) elements.soundToggle.style.display = 'block';
+        
+        // Инициализируем canvas
+        initCanvas();
     }
-    
-    function drawBullets() {
-       const bullets = GameState.bullets();
-       if (!bullets || !canvasContext) return;
-       
-       bullets.forEach(bullet => {
-           canvasContext.fillStyle = '#f1c40f';
-           canvasContext.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
-       });
-   }
-    
-   // --- Обновление интерфейса ---
-   
-   function updateAmmo() {
-     setText('ammoIndicator', `Патроны: ${GameState.ammoCount()}/infinity`);
-   }
-   
-   function updateWave() {
-     setText('waveIndicator', `Волна: ${GameState.waveNumber()}`);
-   }
-   
-   function updateKills() {
-     setText('killCounter', `Убито: ${GameState.totalKills()}`);
-   }
-   
-   function updateHealth() {
-     if (!elements.playerHpFill || !elements.playerHpValue) return;
-     const hp = Math.max(0, Math.min(100, GameState.player().health));
-     elements.playerHpFill.style.width = `${hp}%`;
-     elements.playerHpValue.textContent = Math.ceil(hp);
-     if (hp > 60) elements.playerHpFill.style.backgroundColor = '#2ecc40';
-     else if (hp > 30) elements.playerHpFill.style.backgroundColor = '#ffdc00';
-     else elements.playerHpFill.style.backgroundColor = '#ff4136';
-   }
-   
-   // --- Вспомогательные функции ---
-   
-   function showWaveAnnounce(text) {
-     if (!elements.waveAnnounce) return;
-     setText('waveAnnounce', text);
-     show('waveAnnounce');
-     clearTimeout(waveAnnounceTimer);
-     waveAnnounceTimer = setTimeout(() => hide('waveAnnounce'), GameConfig.GAME_PARAMS.WAVE_ANNOUNCE_DURATION);
-   }
-   
-   function showGameOver() {
-     setText(
-       'gameOverText',
-       `Игра закончена!\nВолна: ${GameState.waveNumber()}\nУбито врагов: ${GameState.totalKills()}`
-     );
-     show('gameOverMessage');
-   }
-   
-   function showGameUI() {
-     console.log('[UI] showGameUI');
-     hideAllMenus();
-     show('gameContainer');
-     show('ammoIndicator');
-     show('waveIndicator');
-     show('killCounter');
-   }
-   
-   function hideAllMenus() {
-     hide('menu');
-     hide('difficultyScreen');
-     hide('pauseMenu');
-     hide('gameOverMessage');
-   }
-   
-   function show(name, display = displayMap[name] || 'block') {
-     if (elements[name]) elements[name].style.display = display;
-   }
-   
-   function hide(name) {
-     if (elements[name]) elements[name].style.display = 'none';
-   }
-   
-   function setText(name, value) {
-     if (elements[name]) elements[name].textContent = value;
-   }
-   
-   function on(name, event, handler) {
-     if (elements[name]) elements[name].addEventListener(event, handler);
-   }
-   
-   function reloadPage() {
-     location.reload();
-   }
-   
-   // --- Инициализация игрока ---
-   
-   function createPlayer() {
-       // Игрок создаётся в GameState, здесь только триггерим перерисовку
-       // Если нужно — можно добавить анимацию появления здесь.
-   }
-    
-   return {
-       init,
-       elements,
-       
-       createPlayer,
-       
-       updateAmmo,
-       updateWave,
-       updateKills,
-       updateHealth,
-       
-       showWaveAnnounce,
-       showGameOver,
-       showGameUI,
-       hideAllMenus,
-       
-       setDifficultyUI,
-       
-       stopRenderLoop // для паузы/выхода из игры
-   };
+
+    function hideAllMenus() {
+        if (elements.menu) elements.menu.style.display = 'none';
+        if (elements.difficultyScreen) elements.difficultyScreen.style.display = 'none';
+        if (elements.pauseMenu) elements.pauseMenu.style.display = 'none';
+    }
+
+    function cleanup() {
+        if (typeof GameCanvas !== 'undefined' && GameCanvas.stopRenderLoop) {
+            GameCanvas.stopRenderLoop();
+        }
+    }
+
+    // Публичный API
+    return {
+        init: init,
+        elements: elements,
+        updateAmmo: updateAmmo,
+        updateWave: updateWave,
+        updateKills: updateKills,
+        updateHealth: updateHealth,
+        showWaveAnnounce: showWaveAnnounce,
+        showGameOver: showGameOver,
+        showGameUI: showGameUI,
+        hideAllMenus: hideAllMenus,
+        cleanup: cleanup
+    };
 })();

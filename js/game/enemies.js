@@ -183,81 +183,9 @@ class EnemySystem {
   }
 
   draw(ctx, camX, camY, W, H) {
-    const hw = W / 2, hh = H / 2;
-    const now = performance.now() * 0.001;
-
-    for (const e of this.enemies) {
-      if (!e.active) continue;
-      const sx = e.x - camX + hw;
-      const sy = e.y - camY + hh;
-      if (sx < -60 || sx > W + 60 || sy < -60 || sy > H + 60) continue;
-
-      const bob = Math.sin(now * 2.5 + e.bobOffset) * 2;
-      const flash = e.hitFlash > 0;
-      const burning = e.burnTimer > 0;
-
-      ctx.save();
-
-      // Shadow
-      ctx.fillStyle = 'rgba(0,0,0,0.35)';
-      ctx.beginPath();
-      ctx.ellipse(sx, sy + e.radius * 0.9, e.radius * 0.9, e.radius * 0.3, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Body glow
-      if (!flash) {
-        ctx.shadowBlur = burning ? 25 : 12;
-        ctx.shadowColor = burning ? '#ff6600' : e.data.color;
-      }
-
-      // Main body circle
-      const gradient = ctx.createRadialGradient(sx, sy + bob - e.radius * 0.2, 0, sx, sy + bob, e.radius);
-      gradient.addColorStop(0, flash ? '#ffffff' : e.data.colorInner);
-      gradient.addColorStop(1, flash ? 'rgba(255,200,200,0.8)' : e.data.color);
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.arc(sx, sy + bob, e.radius, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Eyes
-      ctx.shadowBlur = 0;
-      const eyeY = sy + bob - e.radius * 0.1;
-      ctx.fillStyle = flash ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.8)';
-      ctx.beginPath();
-      ctx.arc(sx - e.radius * 0.28, eyeY, e.radius * 0.16, 0, Math.PI * 2);
-      ctx.arc(sx + e.radius * 0.28, eyeY, e.radius * 0.16, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Glowing eye pupils
-      ctx.fillStyle = flash ? '#ff0000' : '#ff3030';
-      ctx.shadowBlur = 8; ctx.shadowColor = '#ff0000';
-      ctx.beginPath();
-      ctx.arc(sx - e.radius * 0.28, eyeY, e.radius * 0.08, 0, Math.PI * 2);
-      ctx.arc(sx + e.radius * 0.28, eyeY, e.radius * 0.08, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.shadowBlur = 0;
-
-      // Boss crown
-      if (e.data.isBoss) {
-        ctx.fillStyle = '#e8b84b';
-        ctx.shadowBlur = 15; ctx.shadowColor = '#e8b84b';
-        ctx.font = `bold ${e.radius * 0.9}px serif`;
-        ctx.textAlign = 'center';
-        ctx.fillText('👑', sx, sy + bob - e.radius * 1.3);
-        ctx.shadowBlur = 0;
-      }
-
-      // Burn overlay
-      if (burning) {
-        const opacity = 0.3 + 0.2 * Math.sin(now * 10);
-        ctx.fillStyle = `rgba(255,100,0,${opacity})`;
-        ctx.beginPath();
-        ctx.arc(sx, sy + bob, e.radius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      ctx.restore();
+    // Временно пусто - будет реализовано в Шаге 6
+    console.log('[EnemySystem] draw() - будет заменен на спрайты в Шаге 6');
+}
 
       // HP Bar (only if damaged)
       if (e.hp < e.maxHp) {

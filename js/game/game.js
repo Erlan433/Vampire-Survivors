@@ -114,6 +114,16 @@ class Game {
 
   // ---- INIT ----
   startGame() {
+    const self = this;
+    
+    // Загружаем спрайты
+    SpriteLoader.load();
+    SpriteLoader.onReady(function() {
+      self._startGameAfterSprites();
+    });
+  }
+
+  _startGameAfterSprites() {
     this.gameTime = 0;
     this.score    = 0;
     this.kills    = 0;
@@ -363,10 +373,3 @@ class Game {
   }
 }
 
-// ---- BOOT ----
-window.addEventListener('DOMContentLoaded', () => {
-  window.game = new Game();
-  console.log('%c🧛 VAMPIRE SURVIVORS CLONE LOADED', 'color:#c0152a;font-size:1.2em;font-weight:bold');
-  console.log('%cWASD / Arrow keys to move. Weapons fire automatically!', 'color:#e8b84b');
-  console.log('%cType window._debug=true to show debug info', 'color:#888');
-});

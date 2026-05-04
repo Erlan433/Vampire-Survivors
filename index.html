@@ -163,15 +163,15 @@
     <script src="js/game/game.js"></script>
     
     
-   <!-- ===== BOOT (Запуск) ===== -->
+ 
+    <!-- ===== BOOT (Запуск) ===== -->
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-    window.SpriteLoader.onReady = () => {
-        window.game = new Game();
-    };
-
-    window.SpriteLoader.load();
-});
+            window.game = new Game();
+            console.log('%c🧛 VAMPIRE SURVIVORS CLONE LOADED', 'color:#c0152a;font-size:1.2em;font-weight:bold');
+            console.log('%cWASD / Arrow keys to move. Weapons fire automatically!', 'color:#e8b84b');
+            console.log('%cType window._debug=true to show debug info', 'color:#888');
+        });
     </script>
 </body>
 </html>

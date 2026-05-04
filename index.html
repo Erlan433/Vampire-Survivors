@@ -163,8 +163,15 @@
     <script src="js/game/game.js"></script>
     
     
-  
+   <!-- ===== BOOT (Запуск) ===== -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+           window.SpriteLoader.load();
+           window.SpriteLoader.onReady;{() => (window.game = new Game)}
+        });
+    </script>
 </body>
 </html>
+
 
 

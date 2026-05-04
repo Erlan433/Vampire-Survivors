@@ -275,3 +275,57 @@
   color: #ffa040;
   font-family: var(--font-mono);
 }
+
+@media (max-width: 768px){
+  #hud{
+    gap: 0.8rem;
+  }
+  
+  #hpBarWrapper{
+    width: 160px;
+    height: 15px;
+  }
+  
+  #hpText{
+    font-size: 0.6rem;
+  }
+
+  #timerDisplay{
+    font-size: 1.6rem;
+  }
+
+  #scoreDisplay{
+    font-size: 0.6rem;
+  }
+
+  #xpBarWrapper{
+    width: 160px;
+  }
+}
+@media (max-width: 480px){
+  #hud{
+    gap: 0.6rem;
+  }
+  
+  #hpBarWrapper{
+    width: 120px;
+    height: 12px;
+  }
+
+  #hpText {
+    font-size: 0.4rem;
+  }
+
+  #timerDisplay{
+    font-size: 1.2rem;
+  }
+
+  #scoreDisplay{
+    font-size: 0.5rem;
+  }
+
+  #xpBarWrapper{
+    width: 140px;
+    height: 8px;
+  }
+}

@@ -1,7 +1,7 @@
 const CONFIG = {
   // World
-  WORLD_W: 4000,
-  WORLD_H: 4000,
+  WORLD_W: 100,
+  WORLD_H: 100,
   TILE_SIZE: 64,
 
   // Player
